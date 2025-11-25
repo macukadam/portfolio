@@ -27,6 +27,20 @@
 
   const currentTrack = () => tracks[trackIndex];
 
+  const setMarqueeRunning = (isRunning) => {
+    if (!stickyTrack) return;
+    if (isRunning) {
+      // Restart the marquee animation in case it was paused
+      stickyTrack.style.animation = "none";
+      // Force reflow
+      void stickyTrack.offsetHeight;
+      stickyTrack.style.animation = "";
+      stickyTrack.style.animationPlayState = "running";
+    } else {
+      stickyTrack.style.animationPlayState = "paused";
+    }
+  };
+
   const syncTrackLabel = () => {
     if (!stickyTrack) return;
     const t = currentTrack();
@@ -36,7 +50,9 @@
   const syncPlayState = () => {
     const running = audioCtx.state === "running";
     if (playBtn) playBtn.textContent = running ? "Pause" : "Play";
-    stickyPlayer?.classList.toggle("paused", !running || gapSamplesRemaining > 0);
+    const paused = !running || gapSamplesRemaining > 0;
+    stickyPlayer?.classList.toggle("paused", paused);
+    setMarqueeRunning(!paused);
   };
 
   const stopRotation = () => {

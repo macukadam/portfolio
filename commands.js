@@ -17,6 +17,7 @@
     "/home/ugurcan/contact/phone.txt",
     "/home/ugurcan/contact/links.txt",
   ]);
+  const HISTORY_KEY = "terminal-history";
 
   const normalizePath = (base, target) => {
     const raw = target.startsWith("/") ? target : `${base}/${target}`;
@@ -36,6 +37,15 @@
   window.buildTerminalCommands = (pushLine) => {
     let currentPath = HOME_DIR;
     const cmdKeys = () => Object.keys(commands);
+    const loadHistory = () => {
+      try {
+        const raw = sessionStorage.getItem(HISTORY_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    };
 
     const ls = (args) => {
       const target = args?.[0] || ".";
@@ -92,7 +102,7 @@
 
     const commands = {
       help: () => {
-        pushLine("Available: projects, about, email, resume, music [play|pause|next|status], ls, cd, pwd, cat, dir, tree, net, sudo, apt, apt-get, clear (use ↑/↓ for history)");
+        pushLine("Available: projects, about, email, resume, music [play|pause|next|status], history, ls, cd, pwd, cat, dir, tree, net, sudo, apt, apt-get, clear (use ↑/↓ for history)");
       },
       projects: () => {
         pushLine("Projects:");
@@ -131,6 +141,16 @@
       sudo: () => pushLine("sudo: permission denied (nice try)"),
       apt: () => pushLine("apt: not available in this pixelverse."),
       "apt-get": () => pushLine("apt-get: not available in this pixelverse."),
+      history: () => {
+        const items = loadHistory();
+        if (!items.length) {
+          pushLine("history: (empty)");
+          return;
+        }
+        items.forEach((cmd, idx) => {
+          pushLine(`${idx + 1}  ${cmd}`);
+        });
+      },
       music: (args = []) => {
         const player = window.BytebeatPlayer;
         if (!player) {

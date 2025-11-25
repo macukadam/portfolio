@@ -92,7 +92,7 @@
 
     const commands = {
       help: () => {
-        pushLine("Available: projects, about, email, resume, ls, cd, pwd, cat, dir, tree, net, sudo, apt, apt-get, clear");
+        pushLine("Available: projects, about, email, resume, music [play|pause|next|status], ls, cd, pwd, cat, dir, tree, net, sudo, apt, apt-get, clear");
       },
       projects: () => {
         pushLine("Projects:");
@@ -131,6 +131,45 @@
       sudo: () => pushLine("sudo: permission denied (nice try)"),
       apt: () => pushLine("apt: not available in this pixelverse."),
       "apt-get": () => pushLine("apt-get: not available in this pixelverse."),
+      music: (args = []) => {
+        const player = window.BytebeatPlayer;
+        if (!player) {
+          pushLine("music: player not ready.");
+          return;
+        }
+        const action = (args[0] || "status").toLowerCase();
+        const showStatus = () => {
+          const state = player.state ? player.state() : null;
+          const label = player.label ? player.label() : "Unknown track";
+          const playing = state?.isRunning ? "playing" : "paused";
+          pushLine(`Now: ${label} (${playing})`);
+        };
+        const run = (result, message) =>
+          Promise.resolve(result)
+            .then(() => {
+              if (message) pushLine(message);
+              showStatus();
+            })
+            .catch(() => pushLine("music: command failed."));
+        switch (action) {
+          case "play":
+            run(player.play?.(), "Playback resumed.");
+            break;
+          case "pause":
+          case "stop":
+            run(player.pause?.(), "Playback paused.");
+            break;
+          case "next":
+          case "skip":
+            run(player.next?.(), "Skipped to next track.");
+            break;
+          case "status":
+            showStatus();
+            break;
+          default:
+            pushLine("Usage: music [play|pause|next|status]");
+        }
+      },
       clear: () => {
         const output = document.getElementById("terminal-output");
         if (output) output.innerHTML = "";

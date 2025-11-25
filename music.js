@@ -39,6 +39,24 @@
     stickyPlayer?.classList.toggle("paused", !running || gapSamplesRemaining > 0);
   };
 
+  const stopRotation = () => {
+    if (rotationTimer) {
+      clearTimeout(rotationTimer);
+      rotationTimer = null;
+    }
+  };
+
+  const scheduleRotation = (durationMs) => {
+    stopRotation();
+    rotationTimer = setTimeout(() => {
+      fadeOut(FADE_OUT_MS / 1000);
+      setTimeout(() => {
+        setTrack(trackIndex + 1);
+        fadeIn();
+      }, FADE_OUT_MS);
+    }, durationMs);
+  };
+
   const setTrack = (index, withGap = true) => {
     trackIndex = (index + tracks.length) % tracks.length;
     sampleIndex = 0;
@@ -48,17 +66,6 @@
     syncTrackLabel();
     window.dispatchEvent(new CustomEvent("bytebeat-track-change", { detail: { index: trackIndex, track: next } }));
     scheduleRotation(next.durationMs ?? DEFAULT_DURATION);
-  };
-
-  const scheduleRotation = (durationMs) => {
-    if (rotationTimer) clearTimeout(rotationTimer);
-    rotationTimer = setTimeout(() => {
-      fadeOut(FADE_OUT_MS / 1000);
-      setTimeout(() => {
-        setTrack(trackIndex + 1);
-        fadeIn();
-      }, FADE_OUT_MS);
-    }, durationMs);
   };
 
   gainNode.connect(audioCtx.destination);
@@ -85,18 +92,54 @@
   };
   scriptNode.connect(gainNode);
 
+  const resumePlayback = () => {
+    stopRotation();
+    return audioCtx
+      .resume()
+      .then(() => {
+        fadeIn();
+        scheduleRotation(currentTrack().durationMs ?? DEFAULT_DURATION);
+        syncPlayState();
+        return true;
+      })
+      .catch(() => false);
+  };
+
+  const pausePlayback = () => {
+    stopRotation();
+    return audioCtx
+      .suspend()
+      .then(() => {
+        syncPlayState();
+        return true;
+      })
+      .catch(() => false);
+  };
+
+  const skipTrack = () => {
+    stopRotation();
+    fadeOut(FADE_OUT_MS / 1000);
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        setTrack(trackIndex + 1);
+        fadeIn();
+        syncPlayState();
+        resolve(true);
+      }, FADE_OUT_MS);
+    });
+  };
+
+  const getState = () => ({
+    isRunning: audioCtx.state === "running",
+    index: trackIndex,
+    track: currentTrack(),
+  });
+
   playBtn?.addEventListener("click", () => {
     if (audioCtx.state === "suspended") {
-      audioCtx
-        .resume()
-        .then(() => {
-          fadeIn();
-          syncPlayState();
-        })
-        .catch(() => {});
+      resumePlayback();
     } else {
-      if (rotationTimer) clearTimeout(rotationTimer);
-      audioCtx.suspend().then(syncPlayState).catch(() => {});
+      pausePlayback();
     }
   });
 
@@ -126,14 +169,16 @@
   };
 
   const startPlayback = () => {
-    audioCtx
-      .resume()
-      .then(() => {
-        fadeIn();
-        scheduleRotation(currentTrack().durationMs ?? DEFAULT_DURATION);
-        syncPlayState();
-      })
-      .catch(() => {});
+    resumePlayback();
+  };
+
+  window.BytebeatPlayer = {
+    play: resumePlayback,
+    pause: pausePlayback,
+    next: skipTrack,
+    toggle: () => (audioCtx.state === "suspended" ? resumePlayback() : pausePlayback()),
+    state: getState,
+    label: () => `${currentTrack().title} — ${currentTrack().artist}`,
   };
 
   setTrack(0, false);

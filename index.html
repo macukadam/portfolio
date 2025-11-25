@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ugurcan Akpulat | Portfolio</title>
+  <link rel="icon" href="macukadam.svg" type="image/svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="stars stars--near"></div>
+  <div class="stars stars--far"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="pixel-chip"></div>
+      <span class="brand__name">Ugurcan Akpulat</span>
+    </div>
+    <nav class="nav">
+      <a href="#projects">Projects</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <button class="ghost-btn" type="button" data-toggle-palette>Swap</button>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="hero" id="hero">
+      <div class="hero__art">
+        <img class="hero-gif" src="ugurcan.gif" alt="Idle pixel animation of Ugurcan" />
+      </div>
+      <div class="hero__copy">
+        <p class="eyebrow">Team Lead @ Swishfund · Founding Dev @ myclusters.nl</p>
+        <h1>Ugurcan Akpulat · Senior Software Engineer</h1>
+        <p class="lede">I build products end-to-end across Python, Rust, TypeScript, and Dart—shipping reliable systems and playful experiences.</p>
+        <div class="hero__actions">
+          <a class="btn" href="#projects">View projects</a>
+        </div>
+        <div class="chips">
+          <span class="chip chip--online">Amsterdam · +31 6 4208 9969</span>
+          <span class="chip">ugurcan.akpulat@gmail.com</span>
+          <span class="chip chip--pulse">GitHub: macukadam · LinkedIn: /in/ugurcanakpulat</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="terminal is-open" id="terminal" aria-live="polite">
+      <div class="terminal__head">
+        <span class="led led--green"></span>
+        <span class="led led--amber"></span>
+        <span class="led led--red"></span>
+        <div class="terminal__title">ugurcan@terminal:~</div>
+        <button class="ghost-btn" type="button" data-close-terminal>Close</button>
+      </div>
+      <div class="terminal__body" id="terminal-output">
+        <div class="line">type <span class="accent">help</span> to see available commands.</div>
+      </div>
+      <form class="terminal__input" id="terminal-form">
+        <label for="terminal-input" class="prompt">$</label>
+        <input id="terminal-input" name="command" autocomplete="off" placeholder="projects | about | email | resume | ls | cd | pwd | clear">
+        <button class="ghost-btn" type="submit">Run</button>
+      </form>
+    </section>
+
+    <section class="projects" id="projects">
+      <div class="section-head">
+        <p class="eyebrow">Builds</p>
+        <h2>Game cartridges of my work</h2>
+      </div>
+      <div class="cartridge-grid">
+        <article class="cartridge" data-modal-target="modal-1">
+          <div class="cartridge__label">
+            <span class="ribbon">Live</span>
+            <h3>Trading Ticker</h3>
+            <p>Experimental arbitrage calculator across pairs and exchanges with live websockets.</p>
+          </div>
+          <ul class="specs">
+            <li>Flask</li>
+            <li>WebSockets</li>
+            <li>Trading</li>
+          </ul>
+          <button class="btn btn--small" type="button" data-modal-trigger="modal-1">Play</button>
+        </article>
+        <article class="cartridge" data-modal-target="modal-2">
+          <div class="cartridge__label">
+            <h3>RESU-ME</h3>
+            <p>Resume builder to craft and export polished CVs with a clean web UI.</p>
+          </div>
+          <ul class="specs">
+            <li>Rust</li>
+            <li>Yew</li>
+            <li>Web</li>
+          </ul>
+          <button class="btn btn--small" type="button" data-modal-trigger="modal-2">Play</button>
+        </article>
+        <article class="cartridge" data-modal-target="modal-3">
+          <div class="cartridge__label">
+            <h3>Dutch Blog</h3>
+            <p>Social blogging app for Dutch practice and sharing posts with friends.</p>
+          </div>
+          <ul class="specs">
+            <li>TypeScript</li>
+            <li>Angular</li>
+            <li>Ionic</li>
+          </ul>
+          <button class="btn btn--small" type="button" data-modal-trigger="modal-3">Play</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="about" id="about">
+      <div class="section-head">
+        <p class="eyebrow">Lore</p>
+        <h2>Journey map</h2>
+      </div>
+      <div class="timeline">
+        <div class="checkpoint">
+          <span class="checkpoint__dot"></span>
+          <div>
+            <h4>Team Lead — Swishfund (Dec 2021 – Present; Team Lead since Jan 2025)</h4>
+            <p>Leading lending products with Python/Django/Flask on AWS & Airflow; mentoring engineers and keeping services resilient.</p>
+          </div>
+        </div>
+        <div class="checkpoint">
+          <span class="checkpoint__dot"></span>
+          <div>
+            <h4>Founding Dev — myclusters.nl (Jan 2025 – Present)</h4>
+            <p>Building the platform from scratch, shipping backend + UI, and automating delivery.</p>
+          </div>
+        </div>
+        <div class="checkpoint">
+          <span class="checkpoint__dot"></span>
+          <div>
+            <h4>Senior Software Engineer — Eleena (Sep 2019 – Dec 2021)</h4>
+            <p>Python + ML with Tornado; delivered production services for data-driven features.</p>
+          </div>
+        </div>
+        <div class="checkpoint">
+          <span class="checkpoint__dot"></span>
+          <div>
+            <h4>Software Engineer — Siemens (Nov 2017 – Sep 2019)</h4>
+            <p>C# / WPF industrial software; collaborated using TFS pipelines.</p>
+          </div>
+        </div>
+        <div class="checkpoint">
+          <span class="checkpoint__dot"></span>
+          <div>
+            <h4>Software Developer — Lambda Construction (Apr 2017 – Nov 2017)</h4>
+            <p>C#/.NET Core/JavaScript and VB for construction tools and workflows.</p>
+          </div>
+        </div>
+      </div>
+      <div class="toolbelt">
+        <span class="badge">Python</span>
+        <span class="badge">Rust</span>
+        <span class="badge">TypeScript</span>
+        <span class="badge">Dart</span>
+        <span class="badge">AWS</span>
+        <span class="badge">Docker</span>
+        <span class="badge">React</span>
+        <span class="badge">Angular</span>
+        <span class="badge">Django</span>
+        <span class="badge">Airflow</span>
+      </div>
+      <div class="about-meta">
+        <p><strong>Education:</strong> MS Software Engineering, Bogazici University (2019–2021); BS Civil Engineering, Dokuz Eylul University (2009–2015).</p>
+        <p><strong>Languages:</strong> Turkish (Native), English (Fluent), Dutch (Intermediate).</p>
+      </div>
+    </section>
+
+    <section class="contact" id="contact">
+      <div class="section-head">
+        <p class="eyebrow">Call to action</p>
+        <h2>Let’s build something vivid</h2>
+      </div>
+      <div class="contact__actions">
+        <a class="btn" href="mailto:ugurcan.akpulat@gmail.com">Email me</a>
+        <a class="btn btn--ghost" href="tel:+31642089969">Call</a>
+        <a class="btn btn--ghost" href="https://www.linkedin.com/in/ugurcanakpulat" target="_blank" rel="noreferrer">LinkedIn</a>
+        <a class="btn btn--ghost" href="https://github.com/macukadam" target="_blank" rel="noreferrer">GitHub</a>
+      </div>
+      <div class="mail-sprite" aria-hidden="true"></div>
+    </section>
+  </main>
+
+  <div class="modal-overlay" data-modal-overlay>
+    <div class="modal" id="modal-1">
+      <button class="ghost-btn modal__close" type="button" data-close-modal>&times;</button>
+      <h3>Trading Ticker</h3>
+      <p>Live arbitrage explorer showing spread opportunities across exchanges using websocket feeds and a Flask backend.</p>
+      <ul>
+        <li>Outcome: fast signals for pairs and exchange combos.</li>
+        <li>Craft: Flask, websocket feeds, trading math, playful UI.</li>
+      </ul>
+      <a class="btn btn--small" href="https://github.com/macukadam" target="_blank" rel="noreferrer">View on GitHub</a>
+    </div>
+    <div class="modal" id="modal-2">
+      <button class="ghost-btn modal__close" type="button" data-close-modal>&times;</button>
+      <h3>RESU-ME</h3>
+      <p>Web-based resume builder written with Rust + Yew to rapidly craft and export CVs.</p>
+      <ul>
+        <li>Outcome: streamlined CV generation with editable templates.</li>
+        <li>Craft: Rust/Yew, export flow, clean UI.</li>
+      </ul>
+      <a class="btn btn--small" href="https://github.com/macukadam" target="_blank" rel="noreferrer">View on GitHub</a>
+    </div>
+    <div class="modal" id="modal-3">
+      <button class="ghost-btn modal__close" type="button" data-close-modal>&times;</button>
+      <h3>Dutch Blog</h3>
+      <p>Social blogging app for Dutch practice, built with Angular + Ionic.</p>
+      <ul>
+        <li>Outcome: made language learning social and fun.</li>
+        <li>Craft: TypeScript, Angular/Ionic, mobile-friendly UI.</li>
+      </ul>
+      <a class="btn btn--small" href="https://github.com/macukadam" target="_blank" rel="noreferrer">View on GitHub</a>
+    </div>
+  </div>
+
+  <div class="sticky-player" role="complementary" aria-label="Now playing">
+    <div class="sticky-player__cover" aria-hidden="true"></div>
+    <div class="sticky-player__marquee" aria-live="polite">
+      <div class="sticky-player__track" id="sticky-track">THE HIT OF THE SEASON — Bytebeat</div>
+    </div>
+    <div class="sticky-player__controls">
+      <button class="ghost-btn" type="button" data-play>Play</button>
+    </div>
+  </div>
+
+  <script src="tracks.js"></script>
+  <script src="commands.js"></script>
+  <script src="script.js"></script>
+  <script src="music.js"></script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+// Fake shell commands and filesystem for the terminal
+(function () {
+  const HOME_DIR = "/home/ugurcan";
+  const fakeFS = {
+    "/": ["home"],
+    "/home": ["ugurcan"],
+    "/home/ugurcan": ["projects", "about", "contact"],
+    "/home/ugurcan/projects": ["trading-ticker", "resu-me", "dutch-blog"],
+    "/home/ugurcan/about": ["skills.txt", "education.txt", "languages.txt"],
+    "/home/ugurcan/contact": ["email.txt", "phone.txt", "links.txt"],
+  };
+  const fakeFiles = new Set([
+    "/home/ugurcan/about/skills.txt",
+    "/home/ugurcan/about/education.txt",
+    "/home/ugurcan/about/languages.txt",
+    "/home/ugurcan/contact/email.txt",
+    "/home/ugurcan/contact/phone.txt",
+    "/home/ugurcan/contact/links.txt",
+  ]);
+
+  const normalizePath = (base, target) => {
+    const raw = target.startsWith("/") ? target : `${base}/${target}`;
+    const parts = raw.split("/").filter(Boolean);
+    const stack = [];
+    parts.forEach((part) => {
+      if (part === ".") return;
+      if (part === "..") {
+        if (stack.length) stack.pop();
+      } else {
+        stack.push(part);
+      }
+    });
+    return `/${stack.join("/")}`;
+  };
+
+  window.buildTerminalCommands = (pushLine) => {
+    let currentPath = HOME_DIR;
+    const cmdKeys = () => Object.keys(commands);
+
+    const ls = (args) => {
+      const target = args?.[0] || ".";
+      const path = normalizePath(currentPath, target);
+      const isDir = Object.prototype.hasOwnProperty.call(fakeFS, path);
+      const isFile = fakeFiles.has(path);
+      if (!isDir && !isFile) {
+        pushLine(`ls: no such file or directory: ${target}`);
+        return;
+      }
+      if (isFile) {
+        pushLine(path.split("/").pop());
+        return;
+      }
+      pushLine(fakeFS[path].join("  "));
+    };
+
+    const cat = (args) => {
+      const target = args?.[0];
+      if (!target) {
+        pushLine("cat: missing file operand");
+        return;
+      }
+      const path = normalizePath(currentPath, target);
+      if (!fakeFiles.has(path)) {
+        pushLine(`cat: ${target}: No such file`);
+        return;
+      }
+      if (path.includes("skills")) pushLine("Python, Rust, TypeScript, Dart, AWS, Docker, React, Angular, Django, Airflow");
+      else if (path.includes("education")) pushLine("MS Software Engineering, Bogazici University; BS Civil Engineering, Dokuz Eylul University");
+      else if (path.includes("languages")) pushLine("Turkish (Native), English (Fluent), Dutch (Intermediate)");
+      else if (path.includes("email")) pushLine("ugurcan.akpulat@gmail.com");
+      else if (path.includes("phone")) pushLine("+31 6 4208 9969");
+      else if (path.includes("links")) pushLine("GitHub: macukadam · LinkedIn: /in/ugurcanakpulat");
+      else pushLine("cat: nothing to read here yet.");
+    };
+
+    const tree = () => {
+      pushLine(`<pre>/home
+└── ugurcan
+    ├── projects
+    │   ├── trading-ticker
+    │   ├── resu-me
+    │   └── dutch-blog
+    ├── about
+    │   ├── skills.txt
+    │   ├── education.txt
+    │   └── languages.txt
+    └── contact
+        ├── email.txt
+        ├── phone.txt
+        └── links.txt</pre>`);
+    };
+
+    const commands = {
+      help: () => {
+        pushLine("Available: projects, about, email, resume, ls, cd, pwd, cat, dir, tree, net, sudo, apt, apt-get, clear");
+      },
+      projects: () => {
+        pushLine("Projects:");
+        pushLine("- Trading Ticker → arbitrage calculator with live websockets.");
+        pushLine("- RESU-ME → Rust/Yew resume builder.");
+        pushLine("- Dutch Blog → Angular/Ionic social blogging app.");
+      },
+      about: () => {
+        pushLine("Team Lead @ Swishfund; Founding Dev @ myclusters.nl; previously Eleena, Siemens, Lambda Construction.");
+      },
+      email: () => {
+        pushLine("Email: <a href='mailto:ugurcan.akpulat@gmail.com'>ugurcan.akpulat@gmail.com</a>");
+      },
+      resume: () => {
+        pushLine("Resume: request copy via email.");
+      },
+      ls,
+      dir: ls,
+      cd: (args) => {
+        const target = args?.[0] || HOME_DIR;
+        const path = normalizePath(currentPath, target);
+        const isDir = Object.prototype.hasOwnProperty.call(fakeFS, path);
+        if (!isDir) {
+          pushLine(`cd: no such file or directory: ${target}`);
+          return;
+        }
+        currentPath = path;
+        pushLine(currentPath);
+      },
+      pwd: () => {
+        pushLine(currentPath);
+      },
+      cat,
+      tree,
+      net: () => pushLine("net: sandboxed; network access restricted."),
+      sudo: () => pushLine("sudo: permission denied (nice try)"),
+      apt: () => pushLine("apt: not available in this pixelverse."),
+      "apt-get": () => pushLine("apt-get: not available in this pixelverse."),
+      clear: () => {
+        const output = document.getElementById("terminal-output");
+        if (output) output.innerHTML = "";
+      },
+      exit: () => {
+        const term = document.getElementById("terminal");
+        if (term) term.classList.remove("is-open");
+        pushLine("Session closed. Reopen the terminal to continue.");
+      },
+    };
+
+    const complete = (raw) => {
+      if (!raw) return "";
+      const tokens = raw.split(/\s+/);
+      const cursorOnCommand = tokens.length === 1 && !raw.endsWith(" ");
+      if (cursorOnCommand) {
+        const partial = tokens[0].toLowerCase();
+        const match = cmdKeys().find((c) => c.startsWith(partial));
+        return match ? match : raw;
+      }
+      const lastToken = tokens[tokens.length - 1];
+      const parentPath = lastToken.includes("/") ? normalizePath(currentPath, lastToken.split("/").slice(0, -1).join("/")) : currentPath;
+      const partialName = lastToken.includes("/") ? lastToken.split("/").pop() : lastToken;
+      const entries = fakeFS[parentPath] || [];
+      const match = entries.find((e) => e.startsWith(partialName));
+      if (!match) return raw;
+      const prefix = lastToken.includes("/") ? `${lastToken.split("/").slice(0, -1).join("/")}/` : "";
+      const full = `${prefix}${match}`;
+      const fullPath = normalizePath(currentPath, full);
+      const isDir = Object.prototype.hasOwnProperty.call(fakeFS, fullPath);
+      const completedToken = isDir ? `${full}/` : full;
+      tokens[tokens.length - 1] = completedToken;
+      return tokens.join(" ");
+    };
+
+    return {
+      commands,
+      complete,
+    };
+  };
+})();

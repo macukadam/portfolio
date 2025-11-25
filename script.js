@@ -8,6 +8,43 @@ const closeTerminalButton = document.querySelector("[data-close-terminal]");
 const terminalOutput = document.getElementById("terminal-output");
 const terminalForm = document.getElementById("terminal-form");
 const terminalInput = document.getElementById("terminal-input");
+const HISTORY_KEY = "terminal-history";
+
+const loadHistory = () => {
+  try {
+    const raw = sessionStorage.getItem(HISTORY_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+let history = loadHistory();
+let historyIndex = history.length;
+const saveHistory = () => {
+  try {
+    const trimmed = history.slice(-100);
+    sessionStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
+    history = trimmed;
+  } catch {
+    // Ignore storage failures
+  }
+};
+
+const addHistory = (entry) => {
+  if (!entry || !entry.trim()) return;
+  history.push(entry);
+  historyIndex = history.length;
+  saveHistory();
+};
+
+const applyHistoryToInput = (value) => {
+  if (!terminalInput) return;
+  terminalInput.value = value;
+  const pos = value.length;
+  terminalInput.setSelectionRange(pos, pos);
+};
 document.querySelector("[data-toggle-crt]")?.addEventListener("click", () => {
   body.classList.toggle("crt");
 });
@@ -49,6 +86,7 @@ terminalForm?.addEventListener("submit", (event) => {
   const [cmd, ...args] = raw.split(/\s+/);
   const key = cmd.toLowerCase();
   pushLine(`$ ${raw}`, "accent");
+  addHistory(raw);
   if (commands[key]) {
     commands[key](args);
   } else {
@@ -63,6 +101,17 @@ terminalInput?.addEventListener("keydown", (event) => {
     if (!completeInput) return;
     const completed = completeInput(terminalInput.value);
     if (completed) terminalInput.value = completed;
+  } else if (event.key === "ArrowUp") {
+    if (!history.length) return;
+    event.preventDefault();
+    historyIndex = Math.max(0, historyIndex - 1);
+    applyHistoryToInput(history[historyIndex] ?? "");
+  } else if (event.key === "ArrowDown") {
+    if (!history.length) return;
+    event.preventDefault();
+    historyIndex = Math.min(history.length, historyIndex + 1);
+    const nextValue = historyIndex === history.length ? "" : history[historyIndex] ?? "";
+    applyHistoryToInput(nextValue);
   }
 });
 

@@ -92,7 +92,7 @@
 
     const commands = {
       help: () => {
-        pushLine("Available: projects, about, email, resume, music [play|pause|next|status], ls, cd, pwd, cat, dir, tree, net, sudo, apt, apt-get, clear");
+        pushLine("Available: projects, about, email, resume, music [play|pause|next|status], ls, cd, pwd, cat, dir, tree, net, sudo, apt, apt-get, clear (use ↑/↓ for history)");
       },
       projects: () => {
         pushLine("Projects:");

@@ -238,8 +238,9 @@ img {
 
 .hero-gif {
   position: static;
-  width: 360px;
-  height: 360px;
+  width: clamp(220px, 42vw, 360px);
+  aspect-ratio: 1 / 1;
+  max-width: 100%;
   image-rendering: pixelated;
   animation: bob 3s ease-in-out infinite;
 }
@@ -749,6 +750,52 @@ img {
   .hero__actions .btn--ghost {
     width: 100%;
     justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    padding: 0 1.1rem 7rem;
+  }
+
+  .hero {
+    padding: 1.2rem;
+  }
+
+  .hero__copy,
+  .hero .eyebrow,
+  .chips {
+    word-break: break-word;
+  }
+
+  .hero__copy h1 {
+    font-size: clamp(1.1rem, 7vw, 1.5rem);
+  }
+
+  .sticky-player {
+    bottom: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 1.6rem);
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .sticky-player__marquee {
+    max-width: 100%;
+  }
+
+  .contact {
+    padding-bottom: 2.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero__art {
+    min-height: 200px;
+  }
+
+  .hero-gif {
+    width: clamp(200px, 70vw, 260px);
   }
 }
 

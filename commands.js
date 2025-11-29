@@ -7,14 +7,13 @@
     "/home/ugurcan": ["projects", "about", "contact"],
     "/home/ugurcan/projects": ["trading-ticker", "resu-me", "dutch-blog"],
     "/home/ugurcan/about": ["skills.txt", "education.txt", "languages.txt"],
-    "/home/ugurcan/contact": ["email.txt", "phone.txt", "links.txt"],
+    "/home/ugurcan/contact": ["email.txt", "links.txt"],
   };
   const fakeFiles = new Set([
     "/home/ugurcan/about/skills.txt",
     "/home/ugurcan/about/education.txt",
     "/home/ugurcan/about/languages.txt",
     "/home/ugurcan/contact/email.txt",
-    "/home/ugurcan/contact/phone.txt",
     "/home/ugurcan/contact/links.txt",
   ]);
   const HISTORY_KEY = "terminal-history";
@@ -78,7 +77,6 @@
       else if (path.includes("education")) pushLine("MS Software Engineering, Bogazici University; BS Civil Engineering, Dokuz Eylul University");
       else if (path.includes("languages")) pushLine("Turkish (Native), English (Fluent), Dutch (Intermediate)");
       else if (path.includes("email")) pushLine("ugurcan.akpulat@gmail.com");
-      else if (path.includes("phone")) pushLine("+31 6 4208 9969");
       else if (path.includes("links")) pushLine("GitHub: macukadam · LinkedIn: /in/ugurcanakpulat");
       else pushLine("cat: nothing to read here yet.");
     };
@@ -96,7 +94,6 @@
     │   └── languages.txt
     └── contact
         ├── email.txt
-        ├── phone.txt
         └── links.txt</pre>`);
     };
 

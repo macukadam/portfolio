@@ -8,7 +8,25 @@ const closeTerminalButton = document.querySelector("[data-close-terminal]");
 const terminalOutput = document.getElementById("terminal-output");
 const terminalForm = document.getElementById("terminal-form");
 const terminalInput = document.getElementById("terminal-input");
+const terminalSubmit = terminalForm?.querySelector("button[type='submit']");
+const ledGreen = document.querySelector("[data-term-green]");
+const ledAmber = document.querySelector("[data-term-amber]");
+const ledRed = document.querySelector("[data-term-red]");
+const VIM_FALLBACK_URL = "https://rhysd.github.io/vim.wasm/";
+let vimSession = null;
+let vimFullscreen = false;
 const HISTORY_KEY = "terminal-history";
+
+const setFullscreen = (enabled) => {
+  vimFullscreen = !!enabled;
+  if (vimFullscreen) {
+    terminal?.classList.add("is-fullscreen");
+    body.classList.add("no-scroll");
+  } else {
+    terminal?.classList.remove("is-fullscreen");
+    body.classList.remove("no-scroll");
+  }
+};
 
 const loadHistory = () => {
   try {
@@ -61,7 +79,9 @@ openTerminalButtons.forEach((btn) =>
 );
 
 closeTerminalButton?.addEventListener("click", () => {
+  if (vimSession) teardownVim("Closed vim.");
   terminal.classList.remove("is-open");
+  setFullscreen(false);
 });
 
 const pushLine = (text, className) => {
@@ -72,6 +92,7 @@ const pushLine = (text, className) => {
   terminalOutput?.appendChild(line);
   terminalOutput?.scrollTo({ top: terminalOutput.scrollHeight, behavior: "smooth" });
 };
+window.pushTerminalLine = pushLine;
 
 const terminalAPI = window.buildTerminalCommands(pushLine);
 const commands = {
@@ -81,6 +102,7 @@ const completeInput = terminalAPI.complete;
 
 terminalForm?.addEventListener("submit", (event) => {
   event.preventDefault();
+  if (terminal?.classList.contains("vim-mode")) return;
   const raw = terminalInput.value.trim();
   if (!raw) return;
   const [cmd, ...args] = raw.split(/\s+/);
@@ -96,6 +118,7 @@ terminalForm?.addEventListener("submit", (event) => {
 });
 
 terminalInput?.addEventListener("keydown", (event) => {
+  if (terminal?.classList.contains("vim-mode")) return;
   if (event.key === "Tab") {
     event.preventDefault();
     if (!completeInput) return;
@@ -142,9 +165,108 @@ overlay?.addEventListener("click", (event) => {
 });
 
 document.addEventListener("keydown", (event) => {
+  if (terminal?.classList.contains("vim-mode")) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      teardownVim("Exited vim.");
+    }
+    return;
+  }
   if (event.key === "Escape") {
     closeModal();
     terminal.classList.remove("is-open");
+  }
+});
+const teardownVim = (message = "Exited vim.") => {
+  if (vimSession?.wrap && vimSession.wrap.parentElement) {
+    vimSession.wrap.parentElement.removeChild(vimSession.wrap);
+  }
+  vimSession = null;
+  terminal?.classList.remove("vim-mode");
+  setFullscreen(false);
+  if (terminalInput) {
+    terminalInput.disabled = false;
+  }
+  if (terminalSubmit) terminalSubmit.disabled = false;
+  pushLine(message);
+  terminalInput?.focus();
+};
+
+const createVimEmbed = () => {
+  const wrap = document.createElement("div");
+  wrap.className = "vim-embed";
+
+  const body = document.createElement("div");
+  body.className = "vim-embed__body";
+
+  const status = document.createElement("div");
+  status.className = "vim-embed__status";
+  status.textContent = "Loading vim.wasm…";
+
+  wrap.append(body, status);
+  return { wrap, body, status };
+};
+
+const launchVimIframe = (body, status) => {
+  body.innerHTML = "";
+  const iframe = document.createElement("iframe");
+  iframe.className = "vim-embed__iframe";
+  iframe.src = VIM_FALLBACK_URL;
+  iframe.loading = "lazy";
+  iframe.referrerPolicy = "no-referrer";
+  iframe.sandbox = "allow-scripts allow-same-origin allow-modals";
+  body.appendChild(iframe);
+  iframe.addEventListener(
+    "error",
+    () => {
+      status.innerHTML = `Iframe blocked. Open directly: <a href="${VIM_FALLBACK_URL}" target="_blank" rel="noreferrer">vim.wasm</a>`;
+    },
+    { once: true }
+  );
+  status.textContent = "";
+  status.style.display = "none";
+  vimSession = { wrap: body.parentElement, iframe };
+};
+
+const launchVimInTerminal = async (useFullscreen = false) => {
+  if (vimSession) {
+    pushLine("vim: already running (press Esc to return).");
+    return;
+  }
+  if (terminal) terminal.classList.add("vim-mode");
+  setFullscreen(useFullscreen);
+  if (terminalInput) terminalInput.disabled = true;
+  if (terminalSubmit) terminalSubmit.disabled = true;
+  const parts = createVimEmbed();
+  if (terminal && terminalOutput) {
+    terminal.insertBefore(parts.wrap, terminalOutput);
+  } else {
+    terminalOutput?.appendChild(parts.wrap);
+  }
+
+  parts.status.textContent = "";
+  launchVimIframe(parts.body, parts.status);
+};
+
+window.launchVimInTerminal = launchVimInTerminal;
+
+// Window control LEDs
+ledGreen?.addEventListener("click", () => {
+  if (!terminal?.classList.contains("is-open")) return;
+  setFullscreen(!vimFullscreen);
+});
+
+ledAmber?.addEventListener("click", () => {
+  if (!terminal?.classList.contains("is-open")) return;
+  setFullscreen(false);
+});
+
+ledRed?.addEventListener("click", () => {
+  if (vimSession) {
+    teardownVim("Exited vim.");
+  } else {
+    setFullscreen(false);
+    terminal?.classList.remove("is-open");
   }
 });
 
@@ -152,6 +274,13 @@ const konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft",
 const konamiBuffer = [];
 
 document.addEventListener("keydown", (event) => {
+  if (terminal?.classList.contains("vim-mode")) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      teardownVim("Exited vim.");
+    }
+    return;
+  }
   konamiBuffer.push(event.key);
   if (konamiBuffer.length > konamiCode.length) konamiBuffer.shift();
   if (konamiBuffer.join(",").toLowerCase() === konamiCode.join(",").toLowerCase()) {

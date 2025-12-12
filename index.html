@@ -50,9 +50,9 @@
 
     <section class="terminal is-open" id="terminal" aria-live="polite">
       <div class="terminal__head">
-        <span class="led led--green"></span>
-        <span class="led led--amber"></span>
-        <span class="led led--red"></span>
+        <span class="led led--green" data-term-green title="Fullscreen"></span>
+        <span class="led led--amber" data-term-amber title="Normal size"></span>
+        <span class="led led--red" data-term-red title="Close"></span>
         <div class="terminal__title">ugurcan@terminal:~</div>
         <button class="ghost-btn" type="button" data-close-terminal>Close</button>
       </div>
@@ -61,7 +61,7 @@
       </div>
       <form class="terminal__input" id="terminal-form">
         <label for="terminal-input" class="prompt">$</label>
-        <input id="terminal-input" name="command" autocomplete="off" placeholder="projects | about | email | resume | ls | cd | pwd | clear">
+        <input id="terminal-input" name="command" autocomplete="off" placeholder="projects | about | email | resume | vim | ls | cd | pwd | clear">
         <button class="ghost-btn" type="submit">Run</button>
       </form>
     </section>

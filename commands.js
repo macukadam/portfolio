@@ -99,7 +99,7 @@
 
     const commands = {
       help: () => {
-        pushLine("Available: projects, about, email, resume, music [play|pause|next|status], history, ls, cd, pwd, cat, dir, tree, net, sudo, apt, apt-get, clear (use ↑/↓ for history)");
+        pushLine("Available: projects, about, email, resume, music [play|pause|next|status], vim [full], history, ls, cd, pwd, cat, dir, tree, net, sudo, apt, apt-get, clear (use ↑/↓ for history)");
       },
       projects: () => {
         pushLine("Projects:");
@@ -185,6 +185,15 @@
             break;
           default:
             pushLine("Usage: music [play|pause|next|status]");
+        }
+      },
+      vim: (args = []) => {
+        if (typeof window.launchVimInTerminal === "function") {
+          const wantsFullscreen = args.some((a) => ["full", "fs", "max", "-f", "--full"].includes(a.toLowerCase()));
+          pushLine(`Booting vim.wasm inside terminal${wantsFullscreen ? " (fullscreen)" : ""}…`);
+          window.launchVimInTerminal(wantsFullscreen);
+        } else {
+          pushLine("vim: loader not ready.");
         }
       },
       clear: () => {
